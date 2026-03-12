@@ -16,8 +16,10 @@ pipeline {
             }
         }
 
+        // ✅ Updated Build & Test stage
         stage('Build & Test') {
             steps {
+                bat 'pip install -r requirements.txt'
                 bat 'python -m unittest test_app.py'
             }
         }
@@ -43,20 +45,14 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                // Stop old container if running
                 bat "docker rm -f devops-capstone || exit 0"
-
-                // Run new container with restart policy
                 bat "docker run -d --name devops-capstone -p 8081:8080 --restart=always %DOCKER_IMAGE%:${env.BUILD_NUMBER}"
             }
         }
 
         stage('Monitoring') {
             steps {
-                // Show running containers
                 bat "docker ps -a"
-
-                // Tail logs for monitoring
                 bat "docker logs --tail 50 devops-capstone"
             }
         }
